@@ -12,6 +12,10 @@ jobs:
         with:
           node-version: '20'
       - name: Install dependencies
-        run: npm install
+        run: |
+          cd hello-world
+          npm install
       - name: Run tests
-        run: npm test
+        run: |
+          cd hello-world
+          npm test
