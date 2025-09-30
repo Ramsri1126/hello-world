@@ -16,7 +16,7 @@ jobs:
       - name: Build Docker image
         run: |
           cd hello-world
-          docker build -t ${{ secrets.REGISTRY_USERNAME }}/hello-world:${{ github.sha }} .
+          docker build -t ${{ secrets.REGISTRY_USERNAME }} hello-world:${{ github.sha }} .
 
       # Login to container registry (Docker Hub example; swap for ACR if needed)
       - name: Docker Login
