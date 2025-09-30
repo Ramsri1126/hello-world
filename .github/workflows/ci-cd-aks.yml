@@ -1,0 +1,51 @@
+name: CI/CD to AKS
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+      
+      # Build Docker image
+      - name: Build Docker image
+        run: |
+          cd hello-world
+          docker build -t ${{ secrets.REGISTRY_USERNAME }}/hello-world:${{ github.sha }} .
+
+      # Login to container registry (Docker Hub example; swap for ACR if needed)
+      - name: Docker Login
+        run: echo ${{ secrets.REGISTRY_PASSWORD }} | docker login -u ${{ secrets.REGISTRY_USERNAME }} --password-stdin
+
+      # Push image
+      - name: Push Docker image
+        run: |
+          docker push ${{ secrets.REGISTRY_USERNAME }}/hello-world:${{ github.sha }}
+
+      # Set up kubectl
+      - name: Set up kubectl
+        uses: azure/setup-kubectl@v3
+        with:
+          version: 'latest'
+
+      # Azure Login (for AKS)
+      - name: Azure Login
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      # Get AKS credentials
+      - name: Get AKS Credentials
+        run: |
+          az aks get-credentials --resource-group demo-rg --name java-app-aks --overwrite-existing
+
+      # Deploy to AKS
+      - name: Deploy to AKS
+        run: |
+          kubectl set image deployment/hello-world hello-world=${{ secrets.REGISTRY_USERNAME }}/hello-world:${{ github.sha }}
+          kubectl rollout status deployment/hello-world
