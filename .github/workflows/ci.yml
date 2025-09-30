@@ -1,47 +1,22 @@
-name: CI - Maven build & test
+name: CI - Build & Test
 
-on:
-  push:
-    branches: [main]
-  pull_request:
-    branches: [main]
+on: [push, pull_request]
+
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v3
 
-      - name: Set up JDK 17
-        uses: actions/setup-java@v4
-        with: 
-          distribution: 'temurin'
-          java-version: '17'
-          cache: 'maven'
-
-      - name: Cache Maven local repositroy
-        uses: actions/cache@v4
+      # Example for a Node.js project
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
         with:
-          path: ~/.m2/repository
-          key: ${{runner.os}}-m2-${{ hashFiles('**/pom.xml')}}
-          restore-keys: |
-            ${{ runner.os }}-m2-
-            
-      - name: Build with Maven
-        run: mvn -B -s .github/mvn-settings.xml clean package
-        env:
-          MAVEN_OPTS: -DskipTests=false
+          node-version: '18'
+
+      - name: Install dependencies
+        run: npm install
 
       - name: Run tests
-        run: mvn -B test
-
-      - name: Upload build artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: my-app-jar
-          path: target/*.jar
-        
-      
-        
-    
+        run: npm test
