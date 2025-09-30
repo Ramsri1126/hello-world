@@ -18,9 +18,9 @@ jobs:
         with: 
           distribution: 'temurin'
           java-version: '17'
-          cache: gradle
+          cache: 'maven'
 
-      - name: Cache MAven local repositroy
+      - name: Cache Maven local repositroy
         uses: actions/cache@v4
         with:
           path: ~/.m2/repository
